@@ -5,6 +5,8 @@ services:
     build: .
     restart: unless-stopped
     ports:
-      - "80:80"
+      - "443:443"
+    volumes:
+      - ./certs:/srv/app/certs:ro
     env_file:
       - .env

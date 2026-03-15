@@ -18,6 +18,9 @@
 # Build binary
 bin/
 
+# TLS certificates
+certs/
+
 # OS & IDEA
 .DS_Store
 .AppleDouble

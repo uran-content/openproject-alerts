@@ -11,7 +11,7 @@ RUN CGO_ENABLED=0 GOOS=linux \
 	go build -a -installsuffix \
 	cgo -ldflags '-extldflags "-static"' -o op-hookscatcher-bot .
 
-EXPOSE 80
+EXPOSE 443
 
 CMD ["/srv/app/op-hookscatcher-bot"]
 
@@ -26,6 +26,6 @@ CMD ["/srv/app/op-hookscatcher-bot"]
 #COPY --from=BUILDER /srv/app/op-hookscatcher-bot .
 #COPY openproject-webhooks-bot/templates .
 #
-#EXPOSE 80
+#EXPOSE 443
 #
 #CMD ["/srv/app/op-hookscatcher-bot"]

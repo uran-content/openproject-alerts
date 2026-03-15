@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"net/http"
 
 	bot "go-openproject-webhooks-bot/openproject-webhooks-bot"
@@ -13,8 +14,9 @@ func main() {
 	http.HandleFunc("/wp/created", bot.ServeHTTP)
 	http.HandleFunc("/wp/updated", bot.ServeHTTP)
 
-	err := http.ListenAndServe(":80", nil)
+	log.Println("Starting HTTPS server on :443")
+	err := http.ListenAndServeTLS(":443", "/srv/app/certs/server.crt", "/srv/app/certs/server.key", nil)
 	if err != nil {
-		return
+		log.Fatalf("Failed to start HTTPS server: %v", err)
 	}
 }

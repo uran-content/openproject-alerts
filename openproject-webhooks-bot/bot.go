@@ -7,6 +7,7 @@ import (
 	"html/template"
 	"io/ioutil"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"strconv"
@@ -18,6 +19,7 @@ var (
 	botAPI      *tgbotapi.BotAPI
 	usersConfig map[string]int64
 	mainChatID  int64
+	allowedIP   string
 )
 
 func Init(configPath string) {
@@ -32,6 +34,13 @@ func Init(configPath string) {
 	mainChatID, _ = strconv.ParseInt(os.Getenv("OP_WEBHOOKS_BOT_TG_MAIN_CHAT_ID"), 10, 64)
 
 	usersConfig = LoadUsersConfig(configPath)
+
+	allowedIP = os.Getenv("OP_WEBHOOKS_BOT_ALLOWED_IP")
+	if allowedIP != "" {
+		log.Printf("Webhook IP filter enabled: only accepting from %s", allowedIP)
+	} else {
+		log.Println("WARNING: OP_WEBHOOKS_BOT_ALLOWED_IP not set, accepting webhooks from any IP")
+	}
 }
 
 func StartBotListener() {
@@ -62,6 +71,18 @@ func StartBotListener() {
 }
 
 func ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if allowedIP != "" {
+		remoteIP, _, err := net.SplitHostPort(r.RemoteAddr)
+		if err != nil {
+			remoteIP = r.RemoteAddr
+		}
+		if remoteIP != allowedIP {
+			log.Printf("Rejected webhook from unauthorized IP: %s", remoteIP)
+			http.Error(w, "Forbidden", http.StatusForbidden)
+			return
+		}
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 
 	_, err := fmt.Fprintf(w, "OK\n")
