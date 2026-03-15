@@ -112,36 +112,52 @@ func ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	text := renderTemplate(templateFile, &g)
-
-	// Send to main group chat
-	if mainChatID != 0 {
-		sendMessage(mainChatID, text)
-	}
+	taskRef := fmt.Sprintf("#%d %s", g.WorkPackage.ID, g.WorkPackage.Subject)
 
 	// Send personal notifications to assignee and responsible
 	notified := make(map[int64]bool)
 
 	if g.WorkPackage.Embedded.Assignee != nil && g.WorkPackage.Embedded.Assignee.Email != "" {
-		if chatID, ok := usersConfig[g.WorkPackage.Embedded.Assignee.Email]; ok {
-			sendMessage(chatID, text)
+		email := g.WorkPackage.Embedded.Assignee.Email
+		if chatID, ok := usersConfig[email]; ok {
+			notifyUser(chatID, email, "assignee", taskRef, text)
 			notified[chatID] = true
+		} else {
+			sendLogMessage(fmt.Sprintf("⚠️ Assignee %s не найден в конфиге, уведомление не отправлено (таск %s)", email, taskRef))
 		}
 	}
 
 	if g.WorkPackage.Embedded.Responsible != nil && g.WorkPackage.Embedded.Responsible.Email != "" {
-		if chatID, ok := usersConfig[g.WorkPackage.Embedded.Responsible.Email]; ok {
+		email := g.WorkPackage.Embedded.Responsible.Email
+		if chatID, ok := usersConfig[email]; ok {
 			if !notified[chatID] {
-				sendMessage(chatID, text)
+				notifyUser(chatID, email, "responsible", taskRef, text)
 			}
+		} else {
+			sendLogMessage(fmt.Sprintf("⚠️ Responsible %s не найден в конфиге, уведомление не отправлено (таск %s)", email, taskRef))
 		}
 	}
 }
 
-func sendMessage(chatID int64, text string) {
+func notifyUser(chatID int64, email, role, taskRef, text string) {
 	msg := tgbotapi.NewMessage(chatID, text)
 	msg.ParseMode = "HTML"
 	if _, err := botAPI.Send(msg); err != nil {
 		log.Printf("Failed to send message to %d: %v", chatID, err)
+		sendLogMessage(fmt.Sprintf("❌ Не удалось отправить уведомление %s (%s, %s): %v", email, role, taskRef, err))
+	} else {
+		sendLogMessage(fmt.Sprintf("✅ Уведомление отправлено %s (%s) — %s", email, role, taskRef))
+	}
+}
+
+func sendLogMessage(text string) {
+	if mainChatID == 0 {
+		return
+	}
+	msg := tgbotapi.NewMessage(mainChatID, text)
+	msg.ParseMode = "HTML"
+	if _, err := botAPI.Send(msg); err != nil {
+		log.Printf("Failed to send log message to main chat: %v", err)
 	}
 }
 
