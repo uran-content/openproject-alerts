@@ -1,18 +1,20 @@
 package main
 
 import (
-   "net/http"
+	"net/http"
 
-   bot "go-openproject-webhooks-bot/openproject-webhooks-bot"
+	bot "go-openproject-webhooks-bot/openproject-webhooks-bot"
 )
 
 func main() {
-   http.HandleFunc("/wp/created", bot.ServeHTTP)
-   // TODO: Сделать нотификацию на обновление задачи
-   // http.HandleFunc("/wp/updated", bot.ServeHTTP)
+	bot.Init("config/users.json")
+	go bot.StartBotListener()
 
-   err := http.ListenAndServe(":80", nil)
-   if err != nil {
-      return
-   }
+	http.HandleFunc("/wp/created", bot.ServeHTTP)
+	http.HandleFunc("/wp/updated", bot.ServeHTTP)
+
+	err := http.ListenAndServe(":80", nil)
+	if err != nil {
+		return
+	}
 }

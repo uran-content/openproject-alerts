@@ -1,0 +1,8 @@
+<b>Обновление таска:</b> #{{ .WorkPackage.ID }} {{ .WorkPackage.Subject }}
+<b>Статус:</b> {{ .WorkPackage.Embedded.Status.Name }}
+<b>Приоритет:</b> {{ .WorkPackage.Embedded.Priority.Name }}
+⠀
+🔗 <a href="https://tracker.devspark.ru/projects/{{ .WorkPackage.Embedded.Project.Identifier }}/work_packages/{{ .WorkPackage.ID }}/activity">Открыть таск</a>
+⠀
+---
+#tracker{{ .WorkPackage.ID }}

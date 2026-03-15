@@ -223,6 +223,38 @@ type workPackage struct {
                } `json:"auth_source"`
             } `json:"_links"`
          } `json:"author"`
+         Assignee *struct {
+            Type        string      `json:"_type"`
+            ID          int         `json:"id"`
+            Name        string      `json:"name"`
+            CreatedAt   time.Time   `json:"createdAt"`
+            UpdatedAt   time.Time   `json:"updatedAt"`
+            Login       string      `json:"login"`
+            Admin       bool        `json:"admin"`
+            FirstName   string      `json:"firstName"`
+            LastName    string      `json:"lastName"`
+            Email       string      `json:"email"`
+            Avatar      string      `json:"avatar"`
+            Status      string      `json:"status"`
+            IdentityURL interface{} `json:"identityUrl"`
+            Language    string      `json:"language"`
+         } `json:"assignee"`
+         Responsible *struct {
+            Type        string      `json:"_type"`
+            ID          int         `json:"id"`
+            Name        string      `json:"name"`
+            CreatedAt   time.Time   `json:"createdAt"`
+            UpdatedAt   time.Time   `json:"updatedAt"`
+            Login       string      `json:"login"`
+            Admin       bool        `json:"admin"`
+            FirstName   string      `json:"firstName"`
+            LastName    string      `json:"lastName"`
+            Email       string      `json:"email"`
+            Avatar      string      `json:"avatar"`
+            Status      string      `json:"status"`
+            IdentityURL interface{} `json:"identityUrl"`
+            Language    string      `json:"language"`
+         } `json:"responsible"`
          CustomActions []struct {
             Type        string `json:"_type"`
             Name        string `json:"name"`
